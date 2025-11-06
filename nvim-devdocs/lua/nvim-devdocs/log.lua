@@ -1,9 +1,25 @@
+local uv = vim.uv or vim.loop
 local M = {}
+
+local data_dir = vim.fn.stdpath("data")
+local log_dir = data_dir .. "/devdocs"
+
+local function ensure_dir(path)
+  if uv then
+    local stat = uv.fs_stat(path)
+    if stat and stat.type == "directory" then
+      return
+    end
+  end
+  vim.fn.mkdir(path, "p")
+end
+
+ensure_dir(log_dir)
 
 local log = require("plenary.log").new({
   plugin = "nvim-devdocs",
   use_console = false, -- use vim.notify instead
-  outfile = vim.fn.stdpath("data") .. "/devdocs/log.txt",
+  outfile = log_dir .. "/log.txt",
   fmt_msg = function(_, mode_name, src_path, src_line, message)
     local mode = mode_name:upper()
     local timestamp = os.date("%Y-%m-%d %H:%M:%S")
